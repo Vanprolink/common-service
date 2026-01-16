@@ -63,4 +63,16 @@ publishing {
 			artifact(tasks.named("jar"))
 		}
 	}
+	repositories {
+		maven {
+			name = "GitHubPackages"
+			// Thay YOUR_USERNAME bằng tên GitHub của bạn
+			// Thay REPO_NAME bằng tên repository chứa common lib này
+			url = uri("https://maven.pkg.github.com/Vanprolink/common-service")
+			credentials {
+				username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?
+				password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String?
+			}
+		}
+	}
 }
