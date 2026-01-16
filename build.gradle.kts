@@ -3,6 +3,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 plugins {
 	java
 	`java-library`
+	`maven-publish`
 	id("org.springframework.boot") version "3.2.3"
 	id("io.spring.dependency-management") version "1.1.4"
 	id("maven-publish")
@@ -58,9 +59,23 @@ tasks.withType<Test> {
 // 5. Cấu hình Publish
 publishing {
 	publications {
-		create<MavenPublication>("maven") {
-			// Lấy output từ 'jar' task thay vì components['java'] để tránh lỗi metadata
-			artifact(tasks.named("jar"))
+		create<MavenPublication>("gpr") {
+			// 2. Dùng components["java"] là chuẩn nhất.
+			// Nó tự động tạo file POM chứa danh sách các thư viện con mà common cần.
+			from(components["java"])
+
+			// 3. QUAN TRỌNG: Ép tên gói hàng là 'common'
+			// Để bên Order Service gọi đúng là: com.ecommerce:common:1.0.0
+			artifactId = "common"
+			// --- THÊM ĐOẠN NÀY ĐỂ SỬA LỖI ---
+			versionMapping {
+				usage("java-api") {
+					fromResolutionOf("runtimeClasspath")
+				}
+				usage("java-runtime") {
+					fromResolutionOf("runtimeClasspath")
+				}
+			}
 		}
 	}
 	repositories {
