@@ -1,10 +1,12 @@
 # Stage 1: Build
-FROM gradle:7.5.1-jdk17 AS build
-COPY --chown=gradle:gradle . /app
-WORKDIR /app
-RUN gradle build --no-daemon
+# Chỉ cần 1 Stage duy nhất là Run
+# Dùng bản JRE (Java Runtime Environment) cho nhẹ, không cần bản JDK to
+FROM eclipse-temurin:17-jre-alpine
 
-# Stage 2: Run
-FROM openjdk:17
-COPY --from=build /app/build/libs/*.jar app.jar
+WORKDIR /app
+
+# Copy file .jar từ thư mục build của máy host (hoặc GitHub Actions) vào container
+# Lưu ý: Đường dẫn này phải khớp với nơi sinh ra file jar
+COPY build/libs/*.jar app.jar
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
